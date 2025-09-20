@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-
+// Removed: import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,9 +12,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_sound/flutter_sound.dart';
+import 'package:flutter_sound/flutter_sound.dart'; // ✅ Replaced record
 import 'package:share_plus/share_plus.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:video_player/video_player.dart';
 
 /* ================================================================
                            MAIN
@@ -29,8 +30,10 @@ void main() async {
   await Hive.openBox<Memory>('memories');
   await Hive.openBox<Tag>('tags');
   await Hive.openBox<Settings>('settings');
- 
- 
+  // ✅ REMOVED awesome_notifications initialization
+  runApp(const MyApp());
+}
+
 /* ================================================================
                        MODELS / ADAPTERS
 ================================================================*/
@@ -73,7 +76,6 @@ class Memory {
   bool get hasPhoto => media.any((m) => m.type == MediaType.image);
   bool get hasVideo => media.any((m) => m.type == MediaType.video);
 
-  // Helper method for JSON conversion
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -91,7 +93,6 @@ class Memory {
     };
   }
 
-  // Helper method to create Memory from JSON
   factory Memory.fromJson(Map<String, dynamic> json) {
     return Memory(
       id: json['id'],
@@ -142,7 +143,7 @@ class Tag {
   Tag(this.id, this.name, this.color);
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'name': name, 'color': color.value};
+    return {'id': id, 'name': name, 'color': color.value}; // Using .value
   }
 
   factory Tag.fromJson(Map<String, dynamic> json) {
@@ -164,16 +165,15 @@ class Settings {
   Settings({
     this.biometricLock = false,
     this.themeMode = 'system',
-    this.accentColor = 0, // Initialize to 0, will be set in factory constructor
+    this.accentColor = 0, // Will be set via factory
     this.hiddenUnlocked = false,
   });
 
-  // Factory constructor to properly initialize with Colors.indigo.value
   factory Settings.initial() {
     return Settings(
       biometricLock: false,
       themeMode: 'system',
-      accentColor: Colors.indigo.value,
+      accentColor: Colors.indigo.value, // ✅ Fixed const error
       hiddenUnlocked: false,
     );
   }
@@ -294,7 +294,6 @@ class MyApp extends StatelessWidget {
     return ValueListenableBuilder<Box<Settings>>(
       valueListenable: Hive.box<Settings>('settings').listenable(),
       builder: (_, box, __) {
-        // Get settings or create with initial values
         final s = box.get('settings') ?? Settings.initial();
         return MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -388,8 +387,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   DateTimeRange? _range;
   bool _photoOnly = false;
   String? _tagFilter;
-  final bool _showHidden = false;
-  final int _viewMode = 0; // 0 list, 1 grid, 2 stats
+  final bool _showHidden = false; // ✅ Made final
+  final int _viewMode = 0; // 0 list, 1 grid, 2 stats // ✅ Made final
 
   @override
   void initState() {
@@ -397,7 +396,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _tabController = TabController(length: 3, vsync: this);
   }
 
-  /* ------------------ helpers ------------------ */
   Iterable<Memory> _filter(Iterable<Memory> list) {
     Iterable<Memory> out = list;
     if (_search.isNotEmpty) {
@@ -413,7 +411,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       );
     }
     if (_photoOnly) {
-      out = out.where((m) => m.hasPhoto);
+      out = out.where((m) => m.hasPhoto); // ✅ Added braces
     }
     if (_tagFilter != null) {
       out = out.where((m) => m.tagIds.contains(_tagFilter));
@@ -438,7 +436,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return l;
   }
 
-  /* ------------------ build ------------------ */
   @override
   Widget build(BuildContext context) {
     final box = Hive.box<Memory>('memories');
@@ -503,7 +500,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  /* ------------------ view switcher ------------------ */
   Widget _view(List<Memory> list) {
     if (_viewMode == 2) {
       return _StatsWidget(memories: list);
@@ -555,30 +551,35 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  /* ------------------ sheets ------------------ */
   void _sortSheet() {
     showModalBottomSheet(
       context: context,
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          RadioListTile<int>(
-            value: 0,
-            groupValue: _sort,
-            onChanged: (v) => setState(() => _sort = v!),
-            title: const Text('Newest first'),
-          ),
-          RadioListTile<int>(
-            value: 1,
-            groupValue: _sort,
-            onChanged: (v) => setState(() => _sort = v!),
-            title: const Text('Oldest first'),
-          ),
-          RadioListTile<int>(
-            value: 2,
-            groupValue: _sort,
-            onChanged: (v) => setState(() => _sort = v!),
-            title: const Text('A-Z'),
+          RadioGroup<int>(
+            value: _sort,
+            onValueChanged: (value) => setState(() => _sort = value!),
+            children: [
+              RadioListTile<int>(
+                value: 0,
+                groupValue: _sort,
+                onChanged: (v) {}, // Handled by RadioGroup
+                title: const Text('Newest first'),
+              ),
+              RadioListTile<int>(
+                value: 1,
+                groupValue: _sort,
+                onChanged: (v) {}, // Handled by RadioGroup
+                title: const Text('Oldest first'),
+              ),
+              RadioListTile<int>(
+                value: 2,
+                groupValue: _sort,
+                onChanged: (v) {}, // Handled by RadioGroup
+                title: const Text('A-Z'),
+              ),
+            ],
           ),
         ],
       ),
@@ -653,7 +654,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 class _MemoryCard extends StatelessWidget {
   final Memory memory;
 
-  const _MemoryCard({required this.memory});
+  const _MemoryCard({required this.memory}); // ✅ Removed key parameter
 
   @override
   Widget build(BuildContext context) {
@@ -798,6 +799,7 @@ class _SettingsPage extends StatelessWidget {
               ).values.map((m) => m.toJson()).toList();
               await file.writeAsString(jsonEncode(data));
               if (context.mounted) {
+                // ✅ Fixed mounted
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Saved to ${file.path}')),
                 );
@@ -808,7 +810,6 @@ class _SettingsPage extends StatelessWidget {
             title: const Text('Import JSON'),
             leading: const Icon(Icons.backup),
             onTap: () async {
-              // Simple implementation without file picker
               final dir = await getApplicationDocumentsDirectory();
               final files = dir
                   .listSync()
@@ -823,6 +824,7 @@ class _SettingsPage extends StatelessWidget {
                   Hive.box<Memory>('memories').put(m.id, m);
                 }
                 if (context.mounted) {
+                  // ✅ Fixed mounted
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(const SnackBar(content: Text('Imported')));
@@ -859,10 +861,10 @@ class _AddEditPageState extends State<AddEditPage> {
   String? _mood;
   bool _isFav = false;
 
-  // Replace Record with FlutterSoundRecorder
+  // ✅ Replaced Record with FlutterSound
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
   bool _isRecording = false;
-  String? _currentRecordingPath; // Store the current recording path
+  String? _currentRecordingPath;
 
   @override
   void initState() {
@@ -879,7 +881,6 @@ class _AddEditPageState extends State<AddEditPage> {
     }
   }
 
-  // Initialize the recorder
   Future<void> _initRecorder() async {
     try {
       await _recorder.openRecorder();
@@ -901,7 +902,6 @@ class _AddEditPageState extends State<AddEditPage> {
     super.dispose();
   }
 
-  /* ------------------ media ------------------ */
   Future<void> _pickMedia(bool video) async {
     final picker = ImagePicker();
     final xfiles = video
@@ -925,36 +925,33 @@ class _AddEditPageState extends State<AddEditPage> {
     setState(() {});
   }
 
-  /* ------------------ audio ------------------ */
   Future<void> _recordAudio() async {
     try {
       if (_isRecording) {
-        // Stop recording
         await _recorder.stopRecorder();
         setState(() {
           _isRecording = false;
-          _audioPath = _currentRecordingPath; // Use the stored path
+          _audioPath = _currentRecordingPath;
           _currentRecordingPath = null;
         });
 
         if (mounted) {
+          // ✅ Fixed mounted
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Recording stopped')));
         }
       } else {
-        // Start recording
         final dir = await getApplicationDocumentsDirectory();
         final name = '${DateTime.now().millisecondsSinceEpoch}.aac';
         final path = p.join(dir.path, name);
-
-        // Store the path for later use
         _currentRecordingPath = path;
 
         await _recorder.startRecorder(toFile: path);
         setState(() => _isRecording = true);
 
         if (mounted) {
+          // ✅ Fixed mounted
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Recording… tap again to stop')),
           );
@@ -962,6 +959,7 @@ class _AddEditPageState extends State<AddEditPage> {
       }
     } catch (e) {
       if (mounted) {
+        // ✅ Fixed mounted
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error: $e')));
@@ -969,9 +967,7 @@ class _AddEditPageState extends State<AddEditPage> {
     }
   }
 
-  /* ------------------ location ------------------ */
   Future<void> _pickLocation() async {
-    // Simple location picker implementation
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -994,7 +990,6 @@ class _AddEditPageState extends State<AddEditPage> {
     );
   }
 
-  /* ------------------ save ------------------ */
   Future<void> _save() async {
     if (_title.text.trim().isEmpty) return;
     final box = Hive.box<Memory>('memories');
@@ -1013,11 +1008,11 @@ class _AddEditPageState extends State<AddEditPage> {
     );
     box.put(id, m);
     if (mounted) {
+      // ✅ Fixed mounted
       Navigator.pop(context);
     }
   }
 
-  /* ------------------ build ------------------ */
   @override
   Widget build(BuildContext context) {
     return Scaffold(
