@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:awesome_notifications/awesome_notifications.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,19 +29,8 @@ void main() async {
   await Hive.openBox<Memory>('memories');
   await Hive.openBox<Tag>('tags');
   await Hive.openBox<Settings>('settings');
-  // ------------------ reminders ------------------
-  AwesomeNotifications().initialize(null, [
-    NotificationChannel(
-      channelKey: 'memory_channel',
-      channelName: 'Memory reminders',
-      channelDescription: 'Anniversary reminders',
-      defaultColor: Colors.indigo,
-      importance: NotificationImportance.High,
-    ),
-  ]);
-  runApp(const MyApp());
-}
-
+ 
+ 
 /* ================================================================
                        MODELS / ADAPTERS
 ================================================================*/
