@@ -37,6 +37,15 @@ dependencies:
   path_provider: ^2.1.1
   glass: ^1.0.1+1
   path: ^1.8.3
+  awesome_notifications: ^0.9.3          # reminders
+  permission_handler: ^11.3.1            # audio + notifications
+  record: ^5.0.4                         # voice notes
+  video_player: ^2.8.2                   # play videos
+  google_maps_flutter: ^2.5.3            # location
+  latlong2: ^0.9.0                       # distance for stats
+  share_plus: ^8.0.3                     # share card
+  local_auth: ^2.1.6                     # biometric lock
+  flutter_svg: ^2.0.9                    # pretty stat icons
 
 
   # The following adds the Cupertino Icons font to your application.
