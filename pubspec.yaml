@@ -30,23 +30,20 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  timeago: ^3.5.0
+  awesome_notifications: 0.9.3+1
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   image_picker: ^1.0.4
-  path_provider: ^2.1.1
-  glass: ^1.0.1+1
+  local_auth: ^2.1.6
   path: ^1.8.3
-  awesome_notifications: ^0.9.3          # reminders
-  permission_handler: ^11.3.1            # audio + notifications
-  record: ^5.0.4                         # voice notes
-  video_player: ^2.8.2                   # play videos
-  google_maps_flutter: ^2.5.3            # location
-  latlong2: ^0.9.0                       # distance for stats
-  share_plus: ^8.0.3                     # share card
-  local_auth: ^2.1.6                     # biometric lock
-  flutter_svg: ^2.0.9                    # pretty stat icons
-
+  path_provider: ^2.1.1
+  share_plus: ^7.0.1
+  timeago: ^3.3.0
+  video_player: ^2.8.1
+  google_maps_flutter: ^2.5.0
+  glass: ^1.0.0
+  flutter_sound: ^9.2.13
+  
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
