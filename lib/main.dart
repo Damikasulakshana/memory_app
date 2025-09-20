@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 // Removed: import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,9 +13,8 @@ import 'package:local_auth/local_auth.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_sound/flutter_sound.dart'; // ✅ Replaced record
-import 'package:share_plus/share_plus.dart';
+
 import 'package:timeago/timeago.dart' as timeago;
-import 'package:video_player/video_player.dart';
 
 /* ================================================================
                            MAIN
@@ -557,29 +556,32 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       builder: (_) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          RadioGroup<int>(
-            value: _sort,
-            onValueChanged: (value) => setState(() => _sort = value!),
-            children: [
-              RadioListTile<int>(
-                value: 0,
-                groupValue: _sort,
-                onChanged: (v) {}, // Handled by RadioGroup
-                title: const Text('Newest first'),
-              ),
-              RadioListTile<int>(
-                value: 1,
-                groupValue: _sort,
-                onChanged: (v) {}, // Handled by RadioGroup
-                title: const Text('Oldest first'),
-              ),
-              RadioListTile<int>(
-                value: 2,
-                groupValue: _sort,
-                onChanged: (v) {}, // Handled by RadioGroup
-                title: const Text('A-Z'),
-              ),
-            ],
+          RadioListTile<int>(
+            value: 0,
+            groupValue: _sort,
+            onChanged: (value) {
+              setState(() => _sort = value!);
+              Navigator.pop(context);
+            },
+            title: const Text('Newest first'),
+          ),
+          RadioListTile<int>(
+            value: 1,
+            groupValue: _sort,
+            onChanged: (value) {
+              setState(() => _sort = value!);
+              Navigator.pop(context);
+            },
+            title: const Text('Oldest first'),
+          ),
+          RadioListTile<int>(
+            value: 2,
+            groupValue: _sort,
+            onChanged: (value) {
+              setState(() => _sort = value!);
+              Navigator.pop(context);
+            },
+            title: const Text('A-Z'),
           ),
         ],
       ),
@@ -721,8 +723,6 @@ class _StatsWidget extends StatelessWidget {
                       SETTINGS PAGE
 ================================================================*/
 class _SettingsPage extends StatelessWidget {
-  const _SettingsPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     final s =
